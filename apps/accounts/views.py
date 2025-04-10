@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -24,23 +25,38 @@ from .models import Notification
 User = get_user_model()
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    """
+    Custom token view that includes additional user information in the token payload
+    """
     serializer_class = CustomTokenObtainPairSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
+    """
+    Viewset for managing user accounts with role-based permissions.
+    """
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
+        """
+        Return all users for admins, only the current user for others.
+        """
         if self.request.user.role == 'ADMIN':
             return User.objects.all()
         return User.objects.filter(id=self.request.user.id)
     
     def get_serializer_class(self):
+        """
+        Use different serializers for create vs update/retrieve operations.
+        """
         if self.action == 'create':
             return UserCreateSerializer
         return UserSerializer
     
     def create(self, request, *args, **kwargs):
+        """
+        Create a new user and send them an email with their temporary password.
+        """
         # Only ADMINs can create users
         if request.user.role != 'ADMIN':
             return Response(
@@ -68,13 +84,17 @@ class UserViewSet(viewsets.ModelViewSet):
         Cordialement,
         L'équipe ESI Document
         """
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [user.email],
-            fail_silently=False,
-        )
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            # Log the error but don't expose it to the client
+            print(f"Failed to send email: {str(e)}")
         
         return Response(
             {"detail": "Utilisateur créé avec succès et email envoyé avec le mot de passe."},
@@ -83,6 +103,9 @@ class UserViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def change_password(self, request, pk=None):
+        """
+        Change a user's password with appropriate permission checks.
+        """
         user = self.get_object()
         
         # Only the user themself or an admin can change the password
@@ -103,6 +126,8 @@ class UserViewSet(viewsets.ModelViewSet):
             # Otherwise, verify old password
             if user.check_password(serializer.validated_data['old_password']):
                 user.set_password(serializer.validated_data['new_password'])
+                # Clear any temporary password
+                user.temp_password = None
                 user.save()
                 return Response({"detail": "Mot de passe changé avec succès."})
             else:
@@ -113,6 +138,9 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PasswordResetRequestView(generics.GenericAPIView):
+    """
+    Request a password reset by providing an email address.
+    """
     serializer_class = PasswordResetRequestSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -127,30 +155,37 @@ class PasswordResetRequestView(generics.GenericAPIView):
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             
-            # In a real world scenario, you would send a link to the frontend
-            # Here we'll just send the token and uid
-            reset_link = f"uid={uid}&token={token}"
+            # Create a combined token for the reset URL
+            combined_token = f"{uid}-{token}"
             
             subject = 'Réinitialisation de votre mot de passe ESI Document'
             message = f"""
             Bonjour {user.first_name} {user.last_name},
             
             Vous avez demandé une réinitialisation de votre mot de passe.
-            Veuillez utiliser les informations suivantes pour réinitialiser votre mot de passe:
+            Veuillez utiliser le jeton suivant pour réinitialiser votre mot de passe:
             
-            UID: {uid}
-            Token: {token}
+            {combined_token}
+            
+            Ce jeton est valide pour 24 heures.
             
             Cordialement,
             L'équipe ESI Document
             """
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [user.email],
-                fail_silently=False,
-            )
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                print(f"Failed to send password reset email: {str(e)}")
+                return Response(
+                    {"detail": "Erreur lors de l'envoi de l'email. Veuillez réessayer plus tard."},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
             
             return Response(
                 {"detail": "Instructions de réinitialisation envoyées à votre adresse email."},
@@ -164,6 +199,9 @@ class PasswordResetRequestView(generics.GenericAPIView):
             )
 
 class PasswordResetConfirmView(generics.GenericAPIView):
+    """
+    Confirm a password reset using a token and set a new password.
+    """
     serializer_class = PasswordResetConfirmSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -172,13 +210,16 @@ class PasswordResetConfirmView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         
         try:
-            # Parse the token
-            token_parts = serializer.validated_data['token'].split('-')
-            if len(token_parts) != 2:
-                raise ValueError("Format de token invalide")
+            combined_token = serializer.validated_data['token']
             
-            uid = token_parts[0]
-            token = token_parts[1]
+            # More robust token parsing that handles different formats
+            if '-' not in combined_token:
+                return Response(
+                    {"detail": "Format de jeton invalide."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+            uid, token = combined_token.split('-', 1)
             
             # Decode the user ID
             user_id = force_str(urlsafe_base64_decode(uid))
@@ -187,51 +228,85 @@ class PasswordResetConfirmView(generics.GenericAPIView):
             # Check if token is valid
             if not default_token_generator.check_token(user, token):
                 return Response(
-                    {"detail": "Le token de réinitialisation est invalide ou a expiré."},
+                    {"detail": "Le jeton de réinitialisation est invalide ou a expiré."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
                 
             # Set the new password
             user.set_password(serializer.validated_data['new_password'])
+            # Clear any temporary password
+            user.temp_password = None
             user.save()
             
             return Response(
                 {"detail": "Mot de passe réinitialisé avec succès."},
                 status=status.HTTP_200_OK
             )
-        except (TypeError, ValueError, User.DoesNotExist):
+        except (TypeError, ValueError) as e:
             return Response(
-                {"detail": "Le token de réinitialisation est invalide ou a expiré."},
+                {"detail": f"Erreur de format: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "Utilisateur non trouvé."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
 class LogoutView(generics.GenericAPIView):
+    """
+    Logout a user by blacklisting their refresh token.
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         try:
-            refresh_token = request.data["refresh"]
+            refresh_token = request.data.get("refresh")
+            if not refresh_token:
+                return Response(
+                    {"detail": "Le jeton de rafraîchissement est requis."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
             token = RefreshToken(refresh_token)
             token.blacklist()
             return Response(
                 {"detail": "Déconnexion réussie."},
                 status=status.HTTP_200_OK
             )
-        except Exception:
+        except TokenError:
             return Response(
-                {"detail": "Erreur lors de la déconnexion."},
+                {"detail": "Le jeton fourni est invalide ou expiré."},
                 status=status.HTTP_400_BAD_REQUEST
+            )
+        except (KeyError, TypeError, ValueError):
+            return Response(
+                {"detail": "Format de jeton invalide."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"detail": f"Erreur lors de la déconnexion: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 class NotificationViewSet(viewsets.ModelViewSet):
+    """
+    Viewset for managing user notifications with appropriate permissions.
+    """
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        # Users can only see their own notifications
-        return Notification.objects.filter(user=self.request.user).order_by('-date_created')
+        """
+        Users can only see their own notifications.
+        """
+        return Notification.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
+        """
+        Create a notification and send an email.
+        """
         notification = serializer.save()
         
         # Send email notification
@@ -246,16 +321,22 @@ class NotificationViewSet(viewsets.ModelViewSet):
         Cordialement,
         L'équipe ESI Document
         """
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [notification.user.email],
-            fail_silently=False,
-        )
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [notification.user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"Failed to send notification email: {str(e)}")
     
     @action(detail=True, methods=['post'])
     def mark_as_read(self, request, pk=None):
+        """
+        Mark a specific notification as read.
+        """
         notification = self.get_object()
         notification.is_read = True
         notification.save()
@@ -263,6 +344,10 @@ class NotificationViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def mark_all_as_read(self, request):
+        """
+        Mark all of a user's unread notifications as read.
+        """
         notifications = self.get_queryset().filter(is_read=False)
+        count = notifications.count()
         notifications.update(is_read=True)
-        return Response({"status": "all notifications marked as read"})
+        return Response({"status": f"{count} notifications marked as read"})
