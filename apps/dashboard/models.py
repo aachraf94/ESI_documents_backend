@@ -1,3 +1,2 @@
-# apps/dashboard/models.py
 from django.db import models
 
