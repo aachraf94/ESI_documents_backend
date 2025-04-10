@@ -91,6 +91,3 @@ dump.rdb
 
 # Migrations
 **/migrations/*.py
-
-
-TODO.md

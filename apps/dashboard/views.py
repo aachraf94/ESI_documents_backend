@@ -5,6 +5,7 @@ from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models.functions import TruncDate
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample, OpenApiResponse
 import json
 
 from apps.accounts.models import CustomUser, Notification
@@ -26,6 +27,58 @@ class IsAdminOrRHUser(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.role in ['ADMIN', 'RH']
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Liste des activités",
+        description="Retourne une liste paginée de toutes les activités journalisées.",
+        tags=["Activities"],
+        parameters=[
+            OpenApiParameter(name="user_id", description="Filtrer par ID utilisateur", type=int),
+            OpenApiParameter(name="action_type", description="Filtrer par type d'action (VIEW, CREATE, etc)", type=str),
+            OpenApiParameter(name="content_type", description="Filtrer par type de contenu (USER, EMPLOYEE, etc)", type=str),
+            OpenApiParameter(name="start_date", description="Date de début (YYYY-MM-DD)", type=str),
+            OpenApiParameter(name="end_date", description="Date de fin (YYYY-MM-DD)", type=str),
+        ]
+    ),
+    retrieve=extend_schema(
+        summary="Détails d'une activité",
+        description="Retourne les informations détaillées d'une activité journalisée.",
+        tags=["Activities"]
+    ),
+    create=extend_schema(
+        summary="Créer une entrée d'activité",
+        description="Crée une nouvelle entrée dans le journal d'activités.",
+        tags=["Activities"],
+        examples=[
+            OpenApiExample(
+                'Example Activity Log',
+                value={
+                    "user": 1,
+                    "action_type": "VIEW",
+                    "content_type": "EMPLOYEE",
+                    "content_id": 5,
+                    "description": "Consultation du profil employé"
+                }
+            )
+        ],
+        responses={201: ActivityLogSerializer}
+    ),
+    update=extend_schema(
+        summary="Mettre à jour une activité",
+        description="Met à jour les informations d'une activité existante.",
+        tags=["Activities"]
+    ),
+    partial_update=extend_schema(
+        summary="Mise à jour partielle d'une activité",
+        description="Met à jour partiellement les informations d'une activité.",
+        tags=["Activities"]
+    ),
+    destroy=extend_schema(
+        summary="Supprimer une activité",
+        description="Supprime une entrée du journal d'activités.",
+        tags=["Activities"]
+    )
+)
 class ActivityLogViewSet(viewsets.ModelViewSet):
     """
     API endpoint for activity logs with role-based permissions.
@@ -63,6 +116,12 @@ class ActivityLogViewSet(viewsets.ModelViewSet):
         
         return queryset
         
+    @extend_schema(
+        summary="Activités récentes",
+        description="Retourne les activités des 7 derniers jours",
+        tags=["Activities"],
+        responses={200: ActivityLogSerializer(many=True)}
+    )
     @action(detail=False, methods=['get'])
     def recent(self, request):
         """Get only recent activity (last 7 days)"""
@@ -75,6 +134,48 @@ class ActivityLogViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(activities, many=True)
         return Response(serializer.data)
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Liste des préférences tableau de bord",
+        description="Retourne les préférences tableau de bord de l'utilisateur connecté.",
+        tags=["Dashboard"]
+    ),
+    retrieve=extend_schema(
+        summary="Détails des préférences",
+        description="Retourne les informations détaillées des préférences tableau de bord.",
+        tags=["Dashboard"]
+    ),
+    create=extend_schema(
+        summary="Créer des préférences",
+        description="Crée de nouvelles préférences tableau de bord pour l'utilisateur.",
+        tags=["Dashboard"],
+        examples=[
+            OpenApiExample(
+                'Example Dashboard Preference',
+                value={
+                    "layout": {"widgets": {"order": ["stats", "recent", "activities"]}},
+                    "visible_widgets": ["user_stats", "documents_stats", "recent_activities"],
+                    "date_range": "last_month"
+                }
+            )
+        ]
+    ),
+    update=extend_schema(
+        summary="Mettre à jour des préférences",
+        description="Met à jour les préférences tableau de bord existantes.",
+        tags=["Dashboard"]
+    ),
+    partial_update=extend_schema(
+        summary="Mise à jour partielle des préférences",
+        description="Met à jour partiellement les préférences tableau de bord.",
+        tags=["Dashboard"]
+    ),
+    destroy=extend_schema(
+        summary="Supprimer des préférences",
+        description="Supprime les préférences tableau de bord.",
+        tags=["Dashboard"]
+    )
+)
 class DashboardPreferenceViewSet(viewsets.ModelViewSet):
     """
     API endpoint for dashboard preferences
@@ -88,6 +189,20 @@ class DashboardPreferenceViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+@extend_schema(
+    summary="Statistiques tableau de bord",
+    description="Retourne les statistiques globales pour le tableau de bord administrateur",
+    tags=["Dashboard"],
+    parameters=[
+        OpenApiParameter(
+            name="days",
+            description="Nombre de jours à considérer pour les statistiques (défaut: 30)",
+            type=int,
+            required=False
+        )
+    ],
+    responses={200: SummarySerializer}
+)
 class DashboardStatsView(generics.GenericAPIView):
     """
     API endpoint for dashboard statistics

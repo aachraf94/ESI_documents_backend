@@ -152,9 +152,26 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Spectacular settings (OpenAPI)
 SPECTACULAR_SETTINGS = {
     "TITLE": "ESI DOCUMENT API",
-    "DESCRIPTION": "API documentation for ESI DOCUMENT System",
+    "DESCRIPTION": "API de gestion des documents administratifs de l'ESI",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "SCHEMA_PATH_PREFIX": "/api/",
+    "COMPONENT_SPLIT_REQUEST": True,
+    "TAGS": [
+        {"name": "Authentication", "description": "Endpoints d'authentification et de gestion des comptes"},
+        {"name": "Employees", "description": "Gestion des employés de l'établissement"},
+        {"name": "Work Certificates", "description": "Attestations de travail"},
+        {"name": "Mission Orders", "description": "Ordres de mission et étapes"},
+        {"name": "Dashboard", "description": "Statistiques et tableaux de bord"},
+        {"name": "Activities", "description": "Journalisation des activités système"},
+        {"name": "Notifications", "description": "Système de notifications utilisateur"},
+    ],
+    "EXAMPLES_EXTENSION_ATTRIBUTES": {},
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": False,
+    },
 }
 
 

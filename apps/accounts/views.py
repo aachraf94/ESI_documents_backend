@@ -11,6 +11,8 @@ from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample, OpenApiResponse
+
 from .serializers import (
     CustomTokenObtainPairSerializer, 
     UserSerializer, 
@@ -24,12 +26,84 @@ from .models import Notification
 
 User = get_user_model()
 
+@extend_schema(
+    tags=["Authentication"],
+    summary="Obtenir un token d'authentification",
+    description="Authentifie un utilisateur et retourne un token JWT avec refresh token",
+    examples=[
+        OpenApiExample(
+            "Login Example",
+            value={"email": "admin@example.com", "password": "password123"}
+        )
+    ],
+    responses={
+        200: OpenApiResponse(
+            description="Tokens d'authentification",
+            response={
+                "type": "object",
+                "properties": {
+                    "refresh": {"type": "string", "description": "Token de rafraîchissement"},
+                    "access": {"type": "string", "description": "Token d'accès JWT"}
+                }
+            }
+        ),
+        401: OpenApiResponse(description="Identifiants invalides")
+    }
+)
 class CustomTokenObtainPairView(TokenObtainPairView):
     """
     Custom token view that includes additional user information in the token payload
     """
     serializer_class = CustomTokenObtainPairSerializer
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Liste des utilisateurs",
+        description="Retourne une liste des utilisateurs (admin uniquement) ou l'utilisateur courant.",
+        tags=["Authentication"]
+    ),
+    retrieve=extend_schema(
+        summary="Détails d'un utilisateur",
+        description="Retourne les informations détaillées d'un utilisateur spécifique.",
+        tags=["Authentication"]
+    ),
+    create=extend_schema(
+        summary="Créer un utilisateur",
+        description="Crée un nouvel utilisateur dans le système et envoie un email avec mot de passe temporaire.",
+        tags=["Authentication"],
+        examples=[
+            OpenApiExample(
+                'Example User',
+                value={
+                    "email": "user@example.com",
+                    "first_name": "Mohamed",
+                    "last_name": "Charef",
+                    "role": "RH"
+                }
+            )
+        ],
+        responses={
+            201: OpenApiResponse(description="Utilisateur créé avec succès"),
+            400: OpenApiResponse(description="Données invalides"),
+            403: OpenApiResponse(description="Permissions insuffisantes")
+        }
+    ),
+    update=extend_schema(
+        summary="Mettre à jour un utilisateur",
+        description="Met à jour les informations d'un utilisateur existant.",
+        tags=["Authentication"]
+    ),
+    partial_update=extend_schema(
+        summary="Mise à jour partielle d'un utilisateur",
+        description="Met à jour partiellement les informations d'un utilisateur.",
+        tags=["Authentication"]
+    ),
+    destroy=extend_schema(
+        summary="Supprimer un utilisateur",
+        description="Supprime un utilisateur du système.",
+        tags=["Authentication"]
+    )
+)
 class UserViewSet(viewsets.ModelViewSet):
     """
     Viewset for managing user accounts with role-based permissions.
@@ -101,6 +175,24 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED
         )
     
+    @extend_schema(
+        summary="Changer le mot de passe",
+        description="Change le mot de passe d'un utilisateur (soi-même ou en tant qu'admin pour un autre utilisateur)",
+        tags=["Authentication"],
+        request={
+            "type": "object",
+            "properties": {
+                "old_password": {"type": "string"},
+                "new_password": {"type": "string"}
+            },
+            "required": ["old_password", "new_password"]
+        },
+        responses={
+            200: OpenApiResponse(description="Mot de passe changé avec succès"),
+            400: OpenApiResponse(description="Mot de passe incorrect ou invalide"),
+            403: OpenApiResponse(description="Permissions insuffisantes")
+        }
+    )
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def change_password(self, request, pk=None):
         """
@@ -137,6 +229,22 @@ class UserViewSet(viewsets.ModelViewSet):
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@extend_schema(
+    tags=["Authentication"],
+    summary="Demander réinitialisation mot de passe",
+    description="Envoie un email contenant un token de réinitialisation à l'adresse email fournie",
+    request={
+        "type": "object",
+        "properties": {
+            "email": {"type": "string", "format": "email"}
+        },
+        "required": ["email"]
+    },
+    responses={
+        200: OpenApiResponse(description="Instructions envoyées (si l'adresse existe)"),
+        500: OpenApiResponse(description="Erreur lors de l'envoi de l'email")
+    }
+)
 class PasswordResetRequestView(generics.GenericAPIView):
     """
     Request a password reset by providing an email address.
@@ -198,6 +306,23 @@ class PasswordResetRequestView(generics.GenericAPIView):
                 status=status.HTTP_200_OK
             )
 
+@extend_schema(
+    tags=["Authentication"],
+    summary="Confirmer réinitialisation mot de passe",
+    description="Réinitialise le mot de passe de l'utilisateur à l'aide d'un token valide",
+    request={
+        "type": "object",
+        "properties": {
+            "token": {"type": "string", "description": "Token de réinitialisation"},
+            "new_password": {"type": "string", "description": "Nouveau mot de passe"}
+        },
+        "required": ["token", "new_password"]
+    },
+    responses={
+        200: OpenApiResponse(description="Mot de passe réinitialisé avec succès"),
+        400: OpenApiResponse(description="Token invalide ou expiré")
+    }
+)
 class PasswordResetConfirmView(generics.GenericAPIView):
     """
     Confirm a password reset using a token and set a new password.
@@ -253,6 +378,22 @@ class PasswordResetConfirmView(generics.GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+@extend_schema(
+    tags=["Authentication"],
+    summary="Déconnexion",
+    description="Déconnecte un utilisateur en ajoutant son refresh token à la blacklist",
+    request={
+        "type": "object",
+        "properties": {
+            "refresh": {"type": "string", "description": "Refresh token à invalider"}
+        },
+        "required": ["refresh"]
+    },
+    responses={
+        200: OpenApiResponse(description="Déconnexion réussie"),
+        400: OpenApiResponse(description="Token invalid ou expiré")
+    }
+)
 class LogoutView(generics.GenericAPIView):
     """
     Logout a user by blacklisting their refresh token.
@@ -290,6 +431,51 @@ class LogoutView(generics.GenericAPIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Liste des notifications",
+        description="Retourne les notifications de l'utilisateur connecté",
+        tags=["Notifications"]
+    ),
+    retrieve=extend_schema(
+        summary="Détails d'une notification",
+        description="Retourne les détails d'une notification spécifique.",
+        tags=["Notifications"]
+    ),
+    create=extend_schema(
+        summary="Créer une notification",
+        description="Crée une nouvelle notification et envoie un email à l'utilisateur.",
+        tags=["Notifications"],
+        examples=[
+            OpenApiExample(
+                'Example Notification',
+                value={
+                    "user": 1,
+                    "message": "Votre attestation de travail est prête"
+                }
+            )
+        ],
+        responses={
+            201: NotificationSerializer,
+            400: OpenApiResponse(description="Données invalides")
+        }
+    ),
+    update=extend_schema(
+        summary="Mettre à jour une notification",
+        description="Met à jour une notification existante.",
+        tags=["Notifications"]
+    ),
+    partial_update=extend_schema(
+        summary="Mise à jour partielle d'une notification",
+        description="Met à jour partiellement une notification existante.",
+        tags=["Notifications"]
+    ),
+    destroy=extend_schema(
+        summary="Supprimer une notification",
+        description="Supprime une notification du système.",
+        tags=["Notifications"]
+    )
+)
 class NotificationViewSet(viewsets.ModelViewSet):
     """
     Viewset for managing user notifications with appropriate permissions.
@@ -332,6 +518,12 @@ class NotificationViewSet(viewsets.ModelViewSet):
         except Exception as e:
             print(f"Failed to send notification email: {str(e)}")
     
+    @extend_schema(
+        summary="Marquer comme lu",
+        description="Marque une notification spécifique comme lue",
+        tags=["Notifications"],
+        responses={200: OpenApiResponse(description="Notification marquée comme lue")}
+    )
     @action(detail=True, methods=['post'])
     def mark_as_read(self, request, pk=None):
         """
@@ -342,6 +534,12 @@ class NotificationViewSet(viewsets.ModelViewSet):
         notification.save()
         return Response({"status": "notification marked as read"})
     
+    @extend_schema(
+        summary="Tout marquer comme lu",
+        description="Marque toutes les notifications non lues de l'utilisateur comme lues",
+        tags=["Notifications"],
+        responses={200: OpenApiResponse(description="Notifications marquées comme lues")}
+    )
     @action(detail=False, methods=['post'])
     def mark_all_as_read(self, request):
         """
