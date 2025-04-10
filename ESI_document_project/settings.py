@@ -57,6 +57,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Add activity logging middleware
+    "apps.dashboard.middleware.ActivityLogMiddleware",
 ]
 
 ROOT_URLCONF = "ESI_document_project.urls"
