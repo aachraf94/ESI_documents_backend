@@ -1,0 +1,11 @@
+Django==5.0.13
+psycopg2-binary==2.9.9
+djangorestframework==3.15.2
+pytest==8.3.2
+pytest-django==4.8.0
+drf-spectacular==0.28.0
+PyJWT==2.8.0
+flake8==7.1.0
+black==23.3.0
+python-dotenv==1.0.0
+djangorestframework-simplejwt==5.5.0
