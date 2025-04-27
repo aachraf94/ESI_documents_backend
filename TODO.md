@@ -17,10 +17,12 @@
 - [x] Add response descriptions for each endpoint
 - [x] Use @extend_schema decorators for comprehensive documentation
 - [x] Add explicit component schemas for request/response objects
+- [x] Configure static files with WhiteNoise for deployment
+- [x] Set up Gunicorn configuration for production
 
 ## Next Steps
 
-- [ ] Deploy to production server
+- [ ] Deploy to production server on Render
 
 ## Improvement Opportunities
 
@@ -52,7 +54,8 @@
 
 ### DevOps
 
+- [x] Set up deployment scripts for Render
 - [ ] Set up automated backups for the database
-- [ ] Configure proper logging for production environment
+- [x] Configure proper logging for production environment
 - [ ] Create deployment documentation
 - [ ] Add health check endpoints

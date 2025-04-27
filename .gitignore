@@ -77,13 +77,6 @@ htmlcov/
 *.local
 docker-compose.override.yml
 
-# Celery
-celerybeat-schedule
-celerybeat.pid
-
-# Redis
-dump.rdb
-
 # Media and static (generated files)
 /media/*
 !/media/.keep

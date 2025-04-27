@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     # Third-party apps
     "rest_framework",
     "drf_spectacular",
-    'django_redis',
+    "whitenoise.runserver_nostatic",
     
     # Local apps
     "apps.accounts",
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Add whitenoise middleware
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -139,11 +140,11 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files settings
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Configure WhiteNoise for static file serving
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -192,10 +193,15 @@ LOGGING = {
             'filename': BASE_DIR / 'logs' / 'document.log',
             'formatter': 'verbose',
         },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['file', 'console'],
             'level': 'INFO',
             'propagate': True,
         },
