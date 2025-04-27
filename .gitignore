@@ -37,7 +37,6 @@ wheels/
 *.egg
 
 # Django
-*.log
 local_settings.py
 db.sqlite3
 media/
@@ -62,7 +61,6 @@ Thumbs.db
 desktop.ini
 
 # Logs and databases
-*.log
 *.sql
 *.sqlite
 
