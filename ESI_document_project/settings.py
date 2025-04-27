@@ -24,7 +24,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security settings
 SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
+
+# Enhanced ALLOWED_HOSTS handling
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
+# Auto-allow Render.com domains
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# Also allow the explicit Render domain
+ALLOWED_HOSTS.append('esi-documents-backend.onrender.com')
 
 # Application definition
 
