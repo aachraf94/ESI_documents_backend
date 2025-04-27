@@ -9,5 +9,6 @@ flake8==7.1.0
 black==23.3.0
 python-dotenv==1.0.0
 djangorestframework-simplejwt==5.5.0
-django-redis==5.4.0
 drf-nested-routers==0.93.4
+whitenoise==6.6.0
+gunicorn
