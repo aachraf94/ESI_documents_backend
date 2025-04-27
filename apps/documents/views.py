@@ -393,49 +393,61 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
     list=extend_schema(
         summary="Liste des étapes de mission",
         description="Retourne une liste de toutes les étapes de mission.",
-        tags=["Mission Orders"]
+        tags=["Mission Orders"],
+        parameters=[
+            OpenApiParameter(
+                name="mission_pk",
+                type=int,
+                location=OpenApiParameter.PATH,
+                description="ID de l'ordre de mission (mission_pk)"
+            )
+        ]
     ),
     retrieve=extend_schema(
         summary="Détails d'une étape",
         description="Retourne les informations détaillées d'une étape de mission.",
-        tags=["Mission Orders"]
+        tags=["Mission Orders"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de l'étape")
+        ]
+    ),
+    update=extend_schema(
+        summary="Mettre à jour une étape",
+        description="Met à jour les informations d'une étape de mission existante.",
+        tags=["Mission Orders"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de l'étape")
+        ]
+    ),
+    partial_update=extend_schema(
+        summary="Mise à jour partielle d'une étape",
+        description="Met à jour partiellement les informations d'une étape de mission.",
+        tags=["Mission Orders"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de l'étape")
+        ]
+    ),
+    destroy=extend_schema(
+        summary="Supprimer une étape",
+        description="Supprime une étape de mission du système.",
+        tags=["Mission Orders"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de l'étape")
+        ]
     ),
     create=extend_schema(
         summary="Créer une étape",
         description="Crée une nouvelle étape de mission.",
         tags=["Mission Orders"],
-        examples=[
-            OpenApiExample(
-                'Example Mission Stage',
-                value={
-                    "lieu_depart": "Alger",
-                    "lieu_arrivee": "Paris",
-                    "date_depart": "2023-11-15T08:00:00Z",
-                    "date_arrivee": "2023-11-15T11:00:00Z",
-                    "moyen_transport": "AVION"
-                }
+        parameters=[
+            OpenApiParameter(
+                name="mission_pk",
+                type=int,
+                location=OpenApiParameter.PATH,
+                description="ID de l'ordre de mission (mission_pk)"
             )
-        ],
-        responses={
-            201: EtapeMissionSerializer,
-            400: OpenApiResponse(description="Données invalides")
-        }
+        ]
     ),
-    update=extend_schema(
-        summary="Mettre à jour une étape",
-        description="Met à jour les informations d'une étape de mission existante.",
-        tags=["Mission Orders"]
-    ),
-    partial_update=extend_schema(
-        summary="Mise à jour partielle d'une étape",
-        description="Met à jour partiellement les informations d'une étape de mission.",
-        tags=["Mission Orders"]
-    ),
-    destroy=extend_schema(
-        summary="Supprimer une étape",
-        description="Supprime une étape de mission du système.",
-        tags=["Mission Orders"]
-    )
 )
 class EtapeMissionViewSet(viewsets.ModelViewSet):
     """
@@ -450,10 +462,9 @@ class EtapeMissionViewSet(viewsets.ModelViewSet):
         parameters=[
             OpenApiParameter(
                 name="mission_pk",
+                type=int,
                 location=OpenApiParameter.PATH,
-                description="ID of the mission order",
-                required=True,
-                type=int
+                description="ID of the mission order"
             )
         ]
     )

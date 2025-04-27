@@ -143,7 +143,10 @@ class ActivityLogViewSet(viewsets.ModelViewSet):
     retrieve=extend_schema(
         summary="Détails des préférences",
         description="Retourne les informations détaillées des préférences tableau de bord.",
-        tags=["Dashboard"]
+        tags=["Dashboard"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID des préférences")
+        ]
     ),
     create=extend_schema(
         summary="Créer des préférences",
@@ -163,17 +166,26 @@ class ActivityLogViewSet(viewsets.ModelViewSet):
     update=extend_schema(
         summary="Mettre à jour des préférences",
         description="Met à jour les préférences tableau de bord existantes.",
-        tags=["Dashboard"]
+        tags=["Dashboard"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID des préférences")
+        ]
     ),
     partial_update=extend_schema(
         summary="Mise à jour partielle des préférences",
         description="Met à jour partiellement les préférences tableau de bord.",
-        tags=["Dashboard"]
+        tags=["Dashboard"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID des préférences")
+        ]
     ),
     destroy=extend_schema(
         summary="Supprimer des préférences",
         description="Supprime les préférences tableau de bord.",
-        tags=["Dashboard"]
+        tags=["Dashboard"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID des préférences")
+        ]
     )
 )
 class DashboardPreferenceViewSet(viewsets.ModelViewSet):

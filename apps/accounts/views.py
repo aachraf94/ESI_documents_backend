@@ -65,7 +65,10 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     retrieve=extend_schema(
         summary="Détails d'un utilisateur",
         description="Retourne les informations détaillées d'un utilisateur spécifique.",
-        tags=["Authentication"]
+        tags=["Authentication"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de l'utilisateur")
+        ]
     ),
     create=extend_schema(
         summary="Créer un utilisateur",
@@ -91,17 +94,26 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     update=extend_schema(
         summary="Mettre à jour un utilisateur",
         description="Met à jour les informations d'un utilisateur existant.",
-        tags=["Authentication"]
+        tags=["Authentication"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de l'utilisateur")
+        ]
     ),
     partial_update=extend_schema(
         summary="Mise à jour partielle d'un utilisateur",
         description="Met à jour partiellement les informations d'un utilisateur.",
-        tags=["Authentication"]
+        tags=["Authentication"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de l'utilisateur")
+        ]
     ),
     destroy=extend_schema(
         summary="Supprimer un utilisateur",
         description="Supprime un utilisateur du système.",
-        tags=["Authentication"]
+        tags=["Authentication"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de l'utilisateur")
+        ]
     )
 )
 class UserViewSet(viewsets.ModelViewSet):
@@ -414,7 +426,10 @@ class LogoutView(generics.GenericAPIView):
     retrieve=extend_schema(
         summary="Détails d'une notification",
         description="Retourne les détails d'une notification spécifique.",
-        tags=["Notifications"]
+        tags=["Notifications"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de la notification")
+        ]
     ),
     create=extend_schema(
         summary="Créer une notification",
@@ -437,17 +452,26 @@ class LogoutView(generics.GenericAPIView):
     update=extend_schema(
         summary="Mettre à jour une notification",
         description="Met à jour une notification existante.",
-        tags=["Notifications"]
+        tags=["Notifications"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de la notification")
+        ]
     ),
     partial_update=extend_schema(
         summary="Mise à jour partielle d'une notification",
         description="Met à jour partiellement une notification existante.",
-        tags=["Notifications"]
+        tags=["Notifications"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de la notification")
+        ]
     ),
     destroy=extend_schema(
         summary="Supprimer une notification",
         description="Supprime une notification du système.",
-        tags=["Notifications"]
+        tags=["Notifications"],
+        parameters=[
+            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de la notification")
+        ]
     )
 )
 class NotificationViewSet(viewsets.ModelViewSet):
