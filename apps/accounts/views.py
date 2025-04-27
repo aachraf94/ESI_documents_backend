@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, status, generics
+from rest_framework import viewsets, permissions, status, generics, serializers as drf_serializers
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -362,7 +362,7 @@ class PasswordResetConfirmView(generics.GenericAPIView):
     tags=["Authentication"],
     summary="Déconnexion",
     description="Déconnecte un utilisateur en ajoutant son refresh token à la blacklist",
-    request=serializers.Serializer({"refresh": serializers.CharField()}),
+    request=drf_serializers.Serializer({"refresh": drf_serializers.CharField()}),
     responses={
         200: OpenApiResponse(description="Déconnexion réussie"),
         400: OpenApiResponse(description="Token invalid ou expiré")
