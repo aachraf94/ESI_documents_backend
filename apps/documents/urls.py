@@ -12,8 +12,17 @@ router.register(r'attestations', views.AttestationTravailViewSet)
 router.register(r'missions', views.OrdreMissionViewSet)
 
 # Nested router for mission stages
-missions_router = routers.NestedSimpleRouter(router, r'missions', lookup='mission')
-missions_router.register(r'etapes', views.EtapeMissionViewSet, basename='mission-etapes')
+missions_router = routers.NestedSimpleRouter(
+    router, 
+    r'missions', 
+    lookup='mission',
+    trailing_slash=True
+)
+missions_router.register(
+    r'etapes', 
+    views.EtapeMissionViewSet, 
+    basename='mission-etapes'
+)
 
 urlpatterns = [
     path('', include(router.urls)),

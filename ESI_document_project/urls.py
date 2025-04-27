@@ -3,9 +3,13 @@ URL configuration for ESI_document_project project.
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 urlpatterns = [
+    # Redirect root URL to Swagger documentation
+    path("", RedirectView.as_view(url='/api/schema/swagger/', permanent=True)),
+    
     path("admin/", admin.site.urls),
     
     # API Schema

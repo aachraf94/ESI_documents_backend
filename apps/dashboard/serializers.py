@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
+from drf_spectacular.utils import extend_schema_serializer, extend_schema_field, OpenApiExample
 from .models import ActivityLog, DashboardPreference
 from apps.accounts.models import CustomUser, Notification
 from apps.documents.models import Employee, AttestationTravail, OrdreMission
@@ -40,7 +40,8 @@ class ActivityLogSerializer(serializers.ModelSerializer):
                   'timestamp', 'ip_address']
         read_only_fields = ['id', 'timestamp']
     
-    def get_user_name(self, obj):
+    @extend_schema_field(serializers.CharField())
+    def get_user_name(self, obj) -> str:
         if obj.user:
             return f"{obj.user.first_name} {obj.user.last_name}"
         return "System"

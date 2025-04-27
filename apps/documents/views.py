@@ -446,6 +446,17 @@ class EtapeMissionViewSet(viewsets.ModelViewSet):
     serializer_class = EtapeMissionSerializer
     permission_classes = [permissions.IsAuthenticated]
     
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="mission_pk",
+                location=OpenApiParameter.PATH,
+                description="ID of the mission order",
+                required=True,
+                type=int
+            )
+        ]
+    )
     def get_queryset(self):
         """Filter stages by the parent mission order if specified"""
         mission_id = self.kwargs.get('mission_pk')

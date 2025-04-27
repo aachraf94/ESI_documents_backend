@@ -175,71 +175,58 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED
         )
     
-    @extend_schema(
-        summary="Changer le mot de passe",
-        description="Change le mot de passe d'un utilisateur (soi-même ou en tant qu'admin pour un autre utilisateur)",
-        tags=["Authentication"],
-        request={
-            "type": "object",
-            "properties": {
-                "old_password": {"type": "string"},
-                "new_password": {"type": "string"}
-            },
-            "required": ["old_password", "new_password"]
-        },
-        responses={
-            200: OpenApiResponse(description="Mot de passe changé avec succès"),
-            400: OpenApiResponse(description="Mot de passe incorrect ou invalide"),
-            403: OpenApiResponse(description="Permissions insuffisantes")
-        }
-    )
-    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
-    def change_password(self, request, pk=None):
-        """
-        Change a user's password with appropriate permission checks.
-        """
-        user = self.get_object()
+@extend_schema(
+    summary="Changer le mot de passe",
+    description="Change le mot de passe d'un utilisateur (soi-même ou en tant qu'admin pour un autre utilisateur)",
+    tags=["Authentication"],
+    request=PasswordChangeSerializer,
+    responses={
+        200: OpenApiResponse(description="Mot de passe changé avec succès"),
+        400: OpenApiResponse(description="Mot de passe incorrect ou invalide"),
+        403: OpenApiResponse(description="Permissions insuffisantes")
+    }
+)
+@action(detail=True, methods=['post'], url_path='change_password', permission_classes=[permissions.IsAuthenticated])
+def change_password(self, request, pk=None):
+    """
+    Change a user's password with appropriate permission checks.
+    """
+    user = self.get_object()
+    
+    # Only the user themself or an admin can change the password
+    if request.user.id != user.id and request.user.role != 'ADMIN':
+        return Response(
+            {"detail": "Vous n'avez pas la permission de changer ce mot de passe."},
+            status=status.HTTP_403_FORBIDDEN
+        )
         
-        # Only the user themself or an admin can change the password
-        if request.user.id != user.id and request.user.role != 'ADMIN':
+    serializer = PasswordChangeSerializer(data=request.data)
+    if serializer.is_valid():
+        # If admin is changing someone else's password, don't require old password
+        if request.user.role == 'ADMIN' and request.user.id != user.id:
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+            return Response({"detail": "Mot de passe changé avec succès."})
+        
+        # Otherwise, verify old password
+        if user.check_password(serializer.validated_data['old_password']):
+            user.set_password(serializer.validated_data['new_password'])
+            # Clear any temporary password
+            user.temp_password = None
+            user.save()
+            return Response({"detail": "Mot de passe changé avec succès."})
+        else:
             return Response(
-                {"detail": "Vous n'avez pas la permission de changer ce mot de passe."},
-                status=status.HTTP_403_FORBIDDEN
+                {"old_password": ["Mot de passe incorrect."]}, 
+                status=status.HTTP_400_BAD_REQUEST
             )
-            
-        serializer = PasswordChangeSerializer(data=request.data)
-        if serializer.is_valid():
-            # If admin is changing someone else's password, don't require old password
-            if request.user.role == 'ADMIN' and request.user.id != user.id:
-                user.set_password(serializer.validated_data['new_password'])
-                user.save()
-                return Response({"detail": "Mot de passe changé avec succès."})
-            
-            # Otherwise, verify old password
-            if user.check_password(serializer.validated_data['old_password']):
-                user.set_password(serializer.validated_data['new_password'])
-                # Clear any temporary password
-                user.temp_password = None
-                user.save()
-                return Response({"detail": "Mot de passe changé avec succès."})
-            else:
-                return Response(
-                    {"old_password": ["Mot de passe incorrect."]}, 
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @extend_schema(
     tags=["Authentication"],
     summary="Demander réinitialisation mot de passe",
     description="Envoie un email contenant un token de réinitialisation à l'adresse email fournie",
-    request={
-        "type": "object",
-        "properties": {
-            "email": {"type": "string", "format": "email"}
-        },
-        "required": ["email"]
-    },
+    request=PasswordResetRequestSerializer,
     responses={
         200: OpenApiResponse(description="Instructions envoyées (si l'adresse existe)"),
         500: OpenApiResponse(description="Erreur lors de l'envoi de l'email")
@@ -310,14 +297,7 @@ class PasswordResetRequestView(generics.GenericAPIView):
     tags=["Authentication"],
     summary="Confirmer réinitialisation mot de passe",
     description="Réinitialise le mot de passe de l'utilisateur à l'aide d'un token valide",
-    request={
-        "type": "object",
-        "properties": {
-            "token": {"type": "string", "description": "Token de réinitialisation"},
-            "new_password": {"type": "string", "description": "Nouveau mot de passe"}
-        },
-        "required": ["token", "new_password"]
-    },
+    request=PasswordResetConfirmSerializer,
     responses={
         200: OpenApiResponse(description="Mot de passe réinitialisé avec succès"),
         400: OpenApiResponse(description="Token invalide ou expiré")
@@ -382,13 +362,7 @@ class PasswordResetConfirmView(generics.GenericAPIView):
     tags=["Authentication"],
     summary="Déconnexion",
     description="Déconnecte un utilisateur en ajoutant son refresh token à la blacklist",
-    request={
-        "type": "object",
-        "properties": {
-            "refresh": {"type": "string", "description": "Refresh token à invalider"}
-        },
-        "required": ["refresh"]
-    },
+    request=serializers.Serializer({"refresh": serializers.CharField()}),
     responses={
         200: OpenApiResponse(description="Déconnexion réussie"),
         400: OpenApiResponse(description="Token invalid ou expiré")

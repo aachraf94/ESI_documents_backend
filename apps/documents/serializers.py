@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
+from drf_spectacular.utils import extend_schema_serializer, extend_schema_field, OpenApiExample
 from .models import Employee, AttestationTravail, OrdreMission, EtapeMission
 
 @extend_schema_serializer(
