@@ -12,6 +12,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample, OpenApiResponse
+from drf_spectacular.types import OpenApiTypes
 
 from .serializers import (
     CustomTokenObtainPairSerializer, 
@@ -428,7 +429,7 @@ class LogoutView(generics.GenericAPIView):
         description="Retourne les détails d'une notification spécifique.",
         tags=["Notifications"],
         parameters=[
-            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de la notification")
+            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de la notification")
         ]
     ),
     create=extend_schema(
@@ -454,7 +455,7 @@ class LogoutView(generics.GenericAPIView):
         description="Met à jour une notification existante.",
         tags=["Notifications"],
         parameters=[
-            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de la notification")
+            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de la notification")
         ]
     ),
     partial_update=extend_schema(
@@ -462,7 +463,7 @@ class LogoutView(generics.GenericAPIView):
         description="Met à jour partiellement une notification existante.",
         tags=["Notifications"],
         parameters=[
-            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de la notification")
+            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de la notification")
         ]
     ),
     destroy=extend_schema(
@@ -470,7 +471,7 @@ class LogoutView(generics.GenericAPIView):
         description="Supprime une notification du système.",
         tags=["Notifications"],
         parameters=[
-            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de la notification")
+            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de la notification")
         ]
     )
 )

@@ -7,9 +7,9 @@ app_name = 'document'
 
 # Main router
 router = DefaultRouter()
-router.register(r'employees', views.EmployeeViewSet)
-router.register(r'attestations', views.AttestationTravailViewSet)
-router.register(r'missions', views.OrdreMissionViewSet)
+router.register(r'employees', views.EmployeeViewSet, basename='employee')
+router.register(r'attestations', views.AttestationTravailViewSet, basename='attestation')
+router.register(r'missions', views.OrdreMissionViewSet, basename='mission')
 
 # Nested router for mission stages
 missions_router = routers.NestedSimpleRouter(

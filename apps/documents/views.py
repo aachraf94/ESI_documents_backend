@@ -397,7 +397,7 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
         parameters=[
             OpenApiParameter(
                 name="mission_pk",
-                type=int,
+                type=OpenApiTypes.INT,
                 location=OpenApiParameter.PATH,
                 description="ID de l'ordre de mission (mission_pk)"
             )
@@ -408,7 +408,7 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
         description="Retourne les informations détaillées d'une étape de mission.",
         tags=["Mission Orders"],
         parameters=[
-            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de l'étape")
+            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de l'étape")
         ]
     ),
     update=extend_schema(
@@ -416,7 +416,7 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
         description="Met à jour les informations d'une étape de mission existante.",
         tags=["Mission Orders"],
         parameters=[
-            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de l'étape")
+            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de l'étape")
         ]
     ),
     partial_update=extend_schema(
@@ -424,7 +424,7 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
         description="Met à jour partiellement les informations d'une étape de mission.",
         tags=["Mission Orders"],
         parameters=[
-            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de l'étape")
+            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de l'étape")
         ]
     ),
     destroy=extend_schema(
@@ -432,7 +432,7 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
         description="Supprime une étape de mission du système.",
         tags=["Mission Orders"],
         parameters=[
-            OpenApiParameter(name="id", type=int, location=OpenApiParameter.PATH, description="ID de l'étape")
+            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de l'étape")
         ]
     ),
     create=extend_schema(
@@ -442,7 +442,7 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
         parameters=[
             OpenApiParameter(
                 name="mission_pk",
-                type=int,
+                type=OpenApiTypes.INT,
                 location=OpenApiParameter.PATH,
                 description="ID de l'ordre de mission (mission_pk)"
             )
@@ -462,7 +462,7 @@ class EtapeMissionViewSet(viewsets.ModelViewSet):
         parameters=[
             OpenApiParameter(
                 name="mission_pk",
-                type=int,
+                type=OpenApiTypes.INT,
                 location=OpenApiParameter.PATH,
                 description="ID of the mission order"
             )

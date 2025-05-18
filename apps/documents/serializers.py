@@ -51,10 +51,12 @@ class EmployeeSerializer(serializers.ModelSerializer):
 )
 class AttestationTravailSerializer(serializers.ModelSerializer):
     """Serializer for AttestationTravail model - work certificates issued to employees"""
+    employee_name = serializers.ReadOnlyField(source='employee.__str__')
+    
     @extend_schema_field(serializers.CharField())
     def get_employee_name(self, obj) -> str:
+        """Get formatted employee name string"""
         return str(obj.employee)
-    employee_name = serializers.ReadOnlyField(source='employee.__str__')
     
     class Meta:
         model = AttestationTravail
@@ -133,10 +135,12 @@ class EtapeMissionSerializer(serializers.ModelSerializer):
 class OrdreMissionSerializer(serializers.ModelSerializer):
     """Serializer for OrdreMission model with nested EtapeMission data - mission orders for employees"""
     etapes = EtapeMissionSerializer(many=True, required=False)
+    missionnaire_name = serializers.ReadOnlyField(source='missionnaire.__str__')
+    
     @extend_schema_field(serializers.CharField())
     def get_missionnaire_name(self, obj) -> str:
+        """Get formatted missionnaire name string"""
         return str(obj.missionnaire)
-    missionnaire_name = serializers.ReadOnlyField(source='missionnaire.__str__')
     
     class Meta:
         model = OrdreMission
@@ -144,6 +148,7 @@ class OrdreMissionSerializer(serializers.ModelSerializer):
         read_only_fields = ['date_creation']
     
     def create(self, validated_data):
+        """Create new OrdreMission instance, including nested EtapeMission objects"""
         etapes_data = validated_data.pop('etapes', [])
         ordre_mission = OrdreMission.objects.create(**validated_data)
         
@@ -153,6 +158,7 @@ class OrdreMissionSerializer(serializers.ModelSerializer):
         return ordre_mission
     
     def update(self, instance, validated_data):
+        """Update existing OrdreMission instance, including nested EtapeMission objects"""
         etapes_data = validated_data.pop('etapes', None)
         
         # Update the main OrdreMission fields
