@@ -60,14 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-]
-
-# Only use WhiteNoise middleware in production
-if not DEBUG:
-    MIDDLEWARE.append("whitenoise.middleware.WhiteNoiseMiddleware")
-
-# Add the rest of the middleware
-MIDDLEWARE += [
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Always include WhiteNoise middleware
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -156,14 +149,22 @@ USE_TZ = True
 # Static files settings
 STATIC_URL = '/static/'
 
-# Only use STATIC_ROOT in production, not in development
-if not DEBUG:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    # Configure WhiteNoise for static file serving
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-else:
-    # In development, use the default static files storage
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+# Configure WhiteNoise to handle static files without a physical directory
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
+WHITENOISE_ROOT = None
+
+# Set this to a dummy location that doesn't need to exist
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build')
+
+# Use appropriate storage
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
+# Add Django's built-in static file finders
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+]
 
 # Default primary key
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
