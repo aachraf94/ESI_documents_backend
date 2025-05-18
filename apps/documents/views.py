@@ -399,7 +399,8 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
                 name="mission_pk",
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.PATH,
-                description="ID de l'ordre de mission (mission_pk)"
+                description="ID de l'ordre de mission (mission_pk)",
+                required=True
             )
         ]
     ),
@@ -408,7 +409,20 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
         description="Retourne les informations détaillées d'une étape de mission.",
         tags=["Mission Orders"],
         parameters=[
-            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de l'étape")
+            OpenApiParameter(
+                name="id", 
+                type=OpenApiTypes.INT, 
+                location=OpenApiParameter.PATH, 
+                description="ID de l'étape",
+                required=True
+            ),
+            OpenApiParameter(
+                name="mission_pk",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                description="ID de l'ordre de mission",
+                required=True
+            )
         ]
     ),
     update=extend_schema(
@@ -416,7 +430,20 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
         description="Met à jour les informations d'une étape de mission existante.",
         tags=["Mission Orders"],
         parameters=[
-            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de l'étape")
+            OpenApiParameter(
+                name="id", 
+                type=OpenApiTypes.INT, 
+                location=OpenApiParameter.PATH, 
+                description="ID de l'étape",
+                required=True
+            ),
+            OpenApiParameter(
+                name="mission_pk",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                description="ID de l'ordre de mission",
+                required=True
+            )
         ]
     ),
     partial_update=extend_schema(
@@ -424,7 +451,20 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
         description="Met à jour partiellement les informations d'une étape de mission.",
         tags=["Mission Orders"],
         parameters=[
-            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de l'étape")
+            OpenApiParameter(
+                name="id", 
+                type=OpenApiTypes.INT, 
+                location=OpenApiParameter.PATH, 
+                description="ID de l'étape",
+                required=True
+            ),
+            OpenApiParameter(
+                name="mission_pk",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                description="ID de l'ordre de mission",
+                required=True
+            )
         ]
     ),
     destroy=extend_schema(
@@ -432,7 +472,20 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
         description="Supprime une étape de mission du système.",
         tags=["Mission Orders"],
         parameters=[
-            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de l'étape")
+            OpenApiParameter(
+                name="id", 
+                type=OpenApiTypes.INT, 
+                location=OpenApiParameter.PATH, 
+                description="ID de l'étape",
+                required=True
+            ),
+            OpenApiParameter(
+                name="mission_pk",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                description="ID de l'ordre de mission",
+                required=True
+            )
         ]
     ),
     create=extend_schema(
@@ -444,7 +497,8 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
                 name="mission_pk",
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.PATH,
-                description="ID de l'ordre de mission (mission_pk)"
+                description="ID de l'ordre de mission (mission_pk)",
+                required=True
             )
         ]
     ),

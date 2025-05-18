@@ -9,3 +9,8 @@ INFO 2025-05-18 21:27:14,156 autoreload Watching for file changes with StatReloa
 INFO 2025-05-18 21:27:19,156 basehttp "GET / HTTP/1.1" 301 0
 INFO 2025-05-18 21:27:19,211 basehttp "GET /api/schema/swagger/ HTTP/1.1" 200 4712
 INFO 2025-05-18 21:27:21,339 basehttp "GET /api/schema/ HTTP/1.1" 200 254899
+INFO 2025-05-18 21:33:48,762 autoreload Watching for file changes with StatReloader
+INFO 2025-05-18 21:33:54,035 basehttp "GET /api/schema/swagger/ HTTP/1.1" 200 4712
+INFO 2025-05-18 21:33:55,889 basehttp "GET /api/schema/ HTTP/1.1" 200 255236
+INFO 2025-05-18 21:34:08,050 basehttp "GET /api/schema/swagger/ HTTP/1.1" 200 4712
+INFO 2025-05-18 21:34:08,476 basehttp "GET /api/schema/ HTTP/1.1" 200 255236

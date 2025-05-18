@@ -429,7 +429,13 @@ class LogoutView(generics.GenericAPIView):
         description="Retourne les détails d'une notification spécifique.",
         tags=["Notifications"],
         parameters=[
-            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de la notification")
+            OpenApiParameter(
+                name="id", 
+                type=OpenApiTypes.INT, 
+                location=OpenApiParameter.PATH, 
+                description="ID de la notification",
+                required=True
+            )
         ]
     ),
     create=extend_schema(
@@ -455,7 +461,13 @@ class LogoutView(generics.GenericAPIView):
         description="Met à jour une notification existante.",
         tags=["Notifications"],
         parameters=[
-            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de la notification")
+            OpenApiParameter(
+                name="id", 
+                type=OpenApiTypes.INT, 
+                location=OpenApiParameter.PATH, 
+                description="ID de la notification",
+                required=True
+            )
         ]
     ),
     partial_update=extend_schema(
@@ -463,7 +475,13 @@ class LogoutView(generics.GenericAPIView):
         description="Met à jour partiellement une notification existante.",
         tags=["Notifications"],
         parameters=[
-            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de la notification")
+            OpenApiParameter(
+                name="id", 
+                type=OpenApiTypes.INT, 
+                location=OpenApiParameter.PATH, 
+                description="ID de la notification",
+                required=True
+            )
         ]
     ),
     destroy=extend_schema(
@@ -471,7 +489,13 @@ class LogoutView(generics.GenericAPIView):
         description="Supprime une notification du système.",
         tags=["Notifications"],
         parameters=[
-            OpenApiParameter(name="id", type=OpenApiTypes.INT, location=OpenApiParameter.PATH, description="ID de la notification")
+            OpenApiParameter(
+                name="id", 
+                type=OpenApiTypes.INT, 
+                location=OpenApiParameter.PATH, 
+                description="ID de la notification",
+                required=True
+            )
         ]
     )
 )
@@ -521,6 +545,15 @@ class NotificationViewSet(viewsets.ModelViewSet):
         summary="Marquer comme lu",
         description="Marque une notification spécifique comme lue",
         tags=["Notifications"],
+        parameters=[
+            OpenApiParameter(
+                name="id", 
+                type=OpenApiTypes.INT, 
+                location=OpenApiParameter.PATH, 
+                description="ID de la notification",
+                required=True
+            )
+        ],
         responses={200: OpenApiResponse(description="Notification marquée comme lue")}
     )
     @action(detail=True, methods=['post'])

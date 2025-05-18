@@ -51,7 +51,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
 )
 class AttestationTravailSerializer(serializers.ModelSerializer):
     """Serializer for AttestationTravail model - work certificates issued to employees"""
-    employee_name = serializers.ReadOnlyField(source='employee.__str__')
+    employee_name = serializers.SerializerMethodField()
     
     @extend_schema_field(serializers.CharField())
     def get_employee_name(self, obj) -> str:
@@ -135,7 +135,7 @@ class EtapeMissionSerializer(serializers.ModelSerializer):
 class OrdreMissionSerializer(serializers.ModelSerializer):
     """Serializer for OrdreMission model with nested EtapeMission data - mission orders for employees"""
     etapes = EtapeMissionSerializer(many=True, required=False)
-    missionnaire_name = serializers.ReadOnlyField(source='missionnaire.__str__')
+    missionnaire_name = serializers.SerializerMethodField()
     
     @extend_schema_field(serializers.CharField())
     def get_missionnaire_name(self, obj) -> str:
