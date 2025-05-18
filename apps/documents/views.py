@@ -358,7 +358,8 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
         summary="Étapes d'une mission",
         description="Retourne toutes les étapes d'un ordre de mission spécifique",
         tags=["Mission Orders"],
-        responses={200: EtapeMissionSerializer(many=True)}
+        responses={200: EtapeMissionSerializer(many=True)},
+        operation_id="documents_missions_get_etapes"  # Custom operation ID
     )
     @action(detail=True, methods=['get'])
     def etapes(self, request, pk=None):
@@ -376,7 +377,8 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
         responses={
             201: EtapeMissionSerializer,
             400: OpenApiResponse(description="Données invalides")
-        }
+        },
+        operation_id="documents_missions_add_etape"  # Custom operation ID
     )
     @etapes.mapping.post
     def add_etape(self, request, pk=None):
@@ -402,7 +404,8 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
                 description="ID de l'ordre de mission (mission_pk)",
                 required=True
             )
-        ]
+        ],
+        operation_id="documents_missions_etapes_nested_list"  # Custom operation ID
     ),
     retrieve=extend_schema(
         summary="Détails d'une étape",
@@ -423,7 +426,8 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
                 description="ID de l'ordre de mission",
                 required=True
             )
-        ]
+        ],
+        operation_id="documents_missions_etapes_nested_retrieve"  # Custom operation ID
     ),
     update=extend_schema(
         summary="Mettre à jour une étape",
@@ -444,7 +448,8 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
                 description="ID de l'ordre de mission",
                 required=True
             )
-        ]
+        ],
+        operation_id="documents_missions_etapes_nested_update"  # Custom operation ID
     ),
     partial_update=extend_schema(
         summary="Mise à jour partielle d'une étape",
@@ -465,7 +470,8 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
                 description="ID de l'ordre de mission",
                 required=True
             )
-        ]
+        ],
+        operation_id="documents_missions_etapes_nested_partial_update"  # Custom operation ID
     ),
     destroy=extend_schema(
         summary="Supprimer une étape",
@@ -486,7 +492,8 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
                 description="ID de l'ordre de mission",
                 required=True
             )
-        ]
+        ],
+        operation_id="documents_missions_etapes_nested_destroy"  # Custom operation ID
     ),
     create=extend_schema(
         summary="Créer une étape",
@@ -500,7 +507,8 @@ class OrdreMissionViewSet(viewsets.ModelViewSet):
                 description="ID de l'ordre de mission (mission_pk)",
                 required=True
             )
-        ]
+        ],
+        operation_id="documents_missions_etapes_nested_create"  # Custom operation ID
     ),
 )
 class EtapeMissionViewSet(viewsets.ModelViewSet):

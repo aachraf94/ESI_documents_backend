@@ -14,3 +14,15 @@ INFO 2025-05-18 21:33:54,035 basehttp "GET /api/schema/swagger/ HTTP/1.1" 200 47
 INFO 2025-05-18 21:33:55,889 basehttp "GET /api/schema/ HTTP/1.1" 200 255236
 INFO 2025-05-18 21:34:08,050 basehttp "GET /api/schema/swagger/ HTTP/1.1" 200 4712
 INFO 2025-05-18 21:34:08,476 basehttp "GET /api/schema/ HTTP/1.1" 200 255236
+INFO 2025-05-18 21:37:25,084 autoreload G:\ESI STUDY\CS 2\2CS - S2\MPSI\ESI_document_backend\apps\documents\views.py changed, reloading.
+INFO 2025-05-18 21:37:28,322 autoreload Watching for file changes with StatReloader
+INFO 2025-05-18 21:40:20,350 autoreload G:\ESI STUDY\CS 2\2CS - S2\MPSI\ESI_document_backend\apps\documents\views.py changed, reloading.
+INFO 2025-05-18 21:40:23,404 autoreload Watching for file changes with StatReloader
+INFO 2025-05-18 21:40:29,423 basehttp "GET /api/schema/swagger/ HTTP/1.1" 200 4712
+INFO 2025-05-18 21:40:30,698 basehttp "GET /api/schema/ HTTP/1.1" 200 255269
+INFO 2025-05-18 21:41:42,876 autoreload Watching for file changes with StatReloader
+INFO 2025-05-18 21:42:08,070 basehttp "GET /api/schema/swagger/ HTTP/1.1" 200 4712
+INFO 2025-05-18 21:42:10,043 basehttp "GET /api/schema/ HTTP/1.1" 200 255269
+INFO 2025-05-18 21:42:14,570 autoreload G:\ESI STUDY\CS 2\2CS - S2\MPSI\ESI_document_backend\ESI_document_project\settings.py changed, reloading.
+INFO 2025-05-18 21:42:17,624 autoreload Watching for file changes with StatReloader
+INFO 2025-05-18 21:42:36,124 autoreload Watching for file changes with StatReloader
