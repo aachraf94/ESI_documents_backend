@@ -1,2 +1,6 @@
 .
 INFO 2025-04-27 20:58:33,523 autoreload Watching for file changes with StatReloader
+INFO 2025-05-18 17:52:12,793 autoreload Watching for file changes with StatReloader
+INFO 2025-05-18 17:52:20,514 basehttp "GET / HTTP/1.1" 301 0
+INFO 2025-05-18 17:52:20,659 basehttp "GET /api/schema/swagger/ HTTP/1.1" 200 4712
+INFO 2025-05-18 17:52:22,690 basehttp "GET /api/schema/ HTTP/1.1" 200 254899
