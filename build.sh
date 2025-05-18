@@ -69,8 +69,8 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 try:
     if not User.objects.filter(email='admin@example.com').exists():
+        # Create superuser without username parameter
         User.objects.create_superuser(
-            username='admin@example.com',  # Include username parameter for compatibility
             email='admin@example.com', 
             first_name='Admin', 
             last_name='User', 
